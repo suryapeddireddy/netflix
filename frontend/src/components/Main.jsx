@@ -24,8 +24,14 @@ getcurrentmovie();
 
 return(
 <div className="w-full h-[500px]">
-<div className='w-full h-full'>
+<div className='w-full h-full bg-gradient-to-r from-black'>
   <img src={currentmovie} alt="current" className="w-full h-full object-cover"></img>
+  <div className="absolute top-[20%] p-4 md:p-8">
+  <div className='flex flex-row gap-3'>
+  <button className="border bg-gray-300 text-black py-2 px-5 border-gray-300">Play</button>
+  <button className="border py-2 px-5 border-gray-300">Watch Later</button>
+  </div>
+  </div>
 </div>
 </div>
 )

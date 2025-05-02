@@ -1,40 +1,75 @@
-import React from 'react'
-import { useState,useEffect } from 'react';
-import {popular,top_rated,upcoming, trending} from '../Requests'
-import axios from 'axios'
+import React, { useState, useEffect } from 'react';
+import { popular } from '../Requests';
+import axios from 'axios';
+
 const Main = () => {
-const [movies, setmovies] = useState([]);
-const [currentmovie, setcurrentmovie] = useState(''); // Initialize as an empty string
-useEffect(() => {
-const getcurrentmovie=async()=>{
-try {
-const res=await axios.get(popular);
-setmovies(res.data.results);
-// Set currentmovie only if movies array has data
-if (res.data.results && res.data.results.length > 0) {
-  setcurrentmovie(`https://image.tmdb.org/t/p/original/${res.data.results[Math.floor(Math.random()*res.data.results.length)].backdrop_path}`);
-}
-console.log(currentmovie);
-} catch (error) {
-console.log(error);
-}
-}
-getcurrentmovie();
-}, [])
+  const [currentMovie, setCurrentMovie] = useState({
+    backdrop_path: '',
+    title: '',
+    overview: '',
+    release_date: ''
+  });
 
-return(
-<div className="w-full h-[500px]">
-<div className='w-full h-full bg-gradient-to-r from-black'>
-  <img src={currentmovie} alt="current" className="w-full h-full object-cover"></img>
-  <div className="absolute top-[20%] p-4 md:p-8">
-  <div className='flex flex-row gap-3'>
-  <button className="border bg-gray-300 text-black py-2 px-5 border-gray-300">Play</button>
-  <button className="border py-2 px-5 border-gray-300">Watch Later</button>
-  </div>
-  </div>
-</div>
-</div>
-)
-}
+  useEffect(() => {
+    const getCurrentMovie = async () => {
+      try {
+        const res = await axios.get(popular);
+        const results = res.data.results;
 
-export default Main
+        if (results && results.length > 0) {
+          const randomMovie = results[Math.floor(Math.random() * results.length)];
+          setCurrentMovie({
+            backdrop_path: `https://image.tmdb.org/t/p/original/${randomMovie.backdrop_path}`,
+            title: randomMovie.title,
+            overview: randomMovie.overview,
+            release_date: randomMovie.release_date
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch movie:', error);
+      }
+    };
+
+    getCurrentMovie();
+  }, []);
+
+  return (
+    <div className="w-full h-[500px] relative">
+      {/* Background Image */}
+      <img
+        src={currentMovie.backdrop_path}
+        alt={currentMovie.title}
+        className="h-full w-full object-cover"
+      />
+
+      {/* Overlay */}
+      <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-black via-transparent to-black/70" />
+
+      {/* Content */}
+      <div className="absolute top-1/4 left-4 md:left-12 max-w-[90%] md:max-w-[60%] text-white space-y-4">
+        <h1 className="text-3xl md:text-5xl font-bold">{currentMovie.title}</h1>
+
+        <p className="text-sm md:text-base text-gray-200">
+          <span className="font-semibold text-white">Released:</span> {currentMovie.release_date}
+        </p>
+
+        <p className="md:block text-sm md:text-base text-gray-300 leading-relaxed">
+          {currentMovie.overview.length > 200
+            ? currentMovie.overview.slice(0, 200) + '...'
+            : currentMovie.overview}
+        </p>
+
+        <div className="flex gap-4 pt-4">
+          <button className="px-6 py-2 rounded bg-white text-black font-semibold hover:bg-gray-200 transition">
+            ▶ Play
+          </button>
+          <button className="px-6 py-2 rounded bg-gray-700 text-white font-semibold hover:bg-gray-600 transition">
+            + Watch Later
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Main;

@@ -9,14 +9,23 @@ const Signin = () => {
       <img
         src={background}
         alt="background"
-        className="hidden sm:block absolute w-full h-full object-cover"
+        className="hidden sm:block absolute w-full h-full object-cover z-0"
       />
 
       {/* Overlay */}
-      <div className="absolute w-full h-full bg-black/60 top-0 left-0"></div>
+      <div className="absolute w-full h-full bg-black/60 top-0 left-0 z-10"></div>
+
+      {/* Logo */}
+      <div className="absolute top-4 left-4 z-50">
+        <Link to="/">
+          <h1 className="text-red-600 text-4xl font-bold cursor-pointer">
+            NETFLIX
+          </h1>
+        </Link>
+      </div>
 
       {/* Form */}
-      <div className="fixed w-full px-4 py-24 z-50">
+      <div className="fixed w-full px-4 py-24 z-20">
         <div className="max-w-[450px] h-[550px] mx-auto bg-black/75 text-white rounded-md">
           <div className="px-10 py-10">
             <h1 className="text-3xl font-bold mb-6">Sign In</h1>
@@ -46,7 +55,7 @@ const Signin = () => {
                   to="/signup"
                   className="text-white hover:underline cursor-pointer"
                 >
-                  Sign Up Now
+                  Sign Up now
                 </Link>
               </p>
             </form>

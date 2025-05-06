@@ -4,10 +4,12 @@ import dotenv from 'dotenv'
 dotenv.config();
 const app=express();
 
-app.use(cors({
- origin:process.env.ORIGIN,
- credentials:true   
-}));
+app.use(
+    cors({
+      origin: "http://localhost:3001", // Allow your frontend origin
+      credentials: true,               // Allow cookies or auth headers
+    })
+  );
 
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));

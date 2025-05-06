@@ -23,18 +23,9 @@ const signup = async (req, res) => {
     const newUser = new User({ email, password });
     await newUser.save();
 
-    const { AccessToken, RefreshToken } = await getAccessandRefreshTokens(newUser);
-
-    // Save refresh token to cookies
-    res.cookie("RefreshToken", RefreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "Strict",
-    });
 
     return res.status(201).json({
       message: "User created successfully",
-      token: AccessToken,
       user: { email: newUser.email, id: newUser._id },
     });
   } catch (error) {

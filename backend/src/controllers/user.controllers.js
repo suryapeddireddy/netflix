@@ -1,97 +1,106 @@
-import User  from "../models/user.models.js";
+import User from "../models/user.models.js";
 
-// Generate access and refresh tokens
-const getAccessandRefreshTokens = async (user) => {
+// Helper to generate access & refresh tokens
+const getAccessAndRefreshTokens = async (user) => {
   try {
-    const AccessToken = user.generateAccessToken();
-    const RefreshToken = user.generateRefreshToken();
-    return { AccessToken, RefreshToken };
+    const accessToken = user.generateAccessToken();
+    const refreshToken = user.generateRefreshToken();
+    return { accessToken, refreshToken };
   } catch (error) {
-    return null;
+    console.error("Token generation error:", error);
+    throw new Error("Failed to generate tokens");
   }
 };
 
-// Signup controller
+// @desc    Signup
 const signup = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const userExist = await User.findOne({ email });
-    if (userExist) {
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
     }
 
     const newUser = new User({ email, password });
     await newUser.save();
 
+    const { accessToken, refreshToken } = await getAccessAndRefreshTokens(newUser);
+
+    res.cookie("RefreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "Lax", // Better for dev with CORS; use "Strict" in production
+    });
 
     return res.status(201).json({
       message: "User created successfully",
-      user: { email: newUser.email, id: newUser._id },
+      token: accessToken,
+      user: { id: newUser._id, email: newUser.email },
     });
   } catch (error) {
+    console.error("Signup error:", error);
     return res.status(500).json({ message: "Failed to create user" });
   }
 };
 
-// Signin controller
+// @desc    Signin
 const signin = async (req, res) => {
   try {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ message: "User does not exist" });
-    }
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-    const isPasswordCorrect = await user.matchPassword(password);
-    if (!isPasswordCorrect) {
-      return res.status(400).json({ message: "Incorrect password" });
-    }
+    const isMatch = await user.matchPassword(password);
+    if (!isMatch) return res.status(400).json({ message: "Incorrect password" });
 
-    const { AccessToken, RefreshToken } = await getAccessandRefreshTokens(user);
+    const { accessToken, refreshToken } = await getAccessAndRefreshTokens(user);
 
-    // Set refresh token in cookies
-    res.cookie("RefreshToken", RefreshToken, {
+    res.cookie("RefreshToken", refreshToken, {
       httpOnly: true,
       secure: true,
-      sameSite: "Strict",
+      sameSite: "Lax", // Looser CORS for localhost
     });
 
     return res.status(200).json({
       message: "Login successful",
-      token: AccessToken,
-      user: { email: user.email, id: user._id },
+      token: accessToken,
+      user: { id: user._id, email: user.email },
     });
   } catch (error) {
+    console.error("Signin error:", error);
     return res.status(500).json({ message: "Login failed" });
   }
 };
 
-// Logout controller
-const logout = async (req, res) => {
+// @desc    Logout
+const logout = (req, res) => {
   try {
     res.clearCookie("RefreshToken", {
       httpOnly: true,
       secure: true,
-      sameSite: "Strict",
+      sameSite: "Lax",
     });
+
     return res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
+    console.error("Logout error:", error);
     return res.status(500).json({ message: "Logout failed" });
   }
 };
 
-// Get user info (requires authentication middleware)
+// @desc    Get current user
 const getuser = async (req, res) => {
   try {
-    // Assuming `req.user` is set from auth middleware
     const user = await User.findById(req.user.id).select("-password");
     if (!user) return res.status(404).json({ message: "User not found" });
 
     return res.status(200).json({ user });
   } catch (error) {
+    console.error("Get user error:", error);
     return res.status(500).json({ message: "Error fetching user" });
   }
 };
 
-export { signin, signup, logout, getuser };
+export { signup, signin, logout, getuser };

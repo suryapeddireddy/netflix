@@ -27,7 +27,7 @@ app.use(express.urlencoded({ extended: true }));
 import UserRoutes from './routes/user.routes.js';
 app.use('/api/v1/users', UserRoutes);
 
-//  *Important* Error handling (after routes)
+
 app.use((err, req, res, next) => {
     console.error("Global Error Handler:", err); // Log the error
     res.status(500).json({

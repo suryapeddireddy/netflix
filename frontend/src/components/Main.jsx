@@ -13,7 +13,9 @@ const Main = () => {
   useEffect(() => {
     const getCurrentMovie = async () => {
       try {
-        const res = await axios.get(popular);
+        const res = await axios.get(popular, {
+          withCredentials: false // Explicitly disable sending credentials
+        });
         const results = res.data.results;
 
         if (results && results.length > 0) {
@@ -31,7 +33,7 @@ const Main = () => {
     };
 
     getCurrentMovie();
-  }, []);
+  }, [popular]); // Added 'popular' to the dependency array
 
   return (
     <div className="w-full h-[500px] relative">

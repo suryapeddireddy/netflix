@@ -9,7 +9,9 @@ const Row = ({ title, fetchURL, rowID }) => {
   useEffect(() => {
     const getMovies = async () => {
       try {
-        const res = await axios.get(fetchURL);
+        const res = await axios.get(fetchURL, {
+          withCredentials: false // Explicitly disable sending credentials
+        });
         setMovies(res.data.results);
       } catch (error) {
         console.log("Error fetching movies:", error);
@@ -76,3 +78,6 @@ const Row = ({ title, fetchURL, rowID }) => {
 };
 
 export default Row;
+
+// The Home component doesn't directly make the API call, so no immediate correction is needed there.
+// However, ensure that the 'fetchURL' prop passed to the Row component in Home.jsx is the correct API endpoint.

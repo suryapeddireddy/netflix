@@ -1,21 +1,23 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import { useAuth } from '../context/AuthContext'; // Correcting the hook import
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
-  const { user, logout } = useAuth(); // Correcting the hook usage (useAuth instead of UserAuth)
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleAvatarClick = () => {
     // Redirect to account page
-    window.location.href = "/account";
+    navigate("/account");
   };
 
   const handleLogout = async () => {
     try {
-      await logout(); // Calling the logout function from context
-      window.location.href = "/"; // Optionally redirect to home after logging out
+      await logout();
+      navigate("/"); // Redirect to home after logging out using navigate
     } catch (err) {
-      console.error("Logout error", err); // Error handling
+      console.error("Logout error", err);
+      // Optionally display an error message to the user
     }
   };
 
@@ -50,7 +52,7 @@ const Navbar = () => {
               onClick={handleAvatarClick}
               className="cursor-pointer rounded-full w-8 h-8 bg-gray-300 flex items-center justify-center text-sm text-black hover:bg-gray-400 transition"
             >
-              😊
+              😊 {/* Replace with user's avatar or initials if available */}
             </div>
             {/* Logout button */}
             <button

@@ -1,40 +1,42 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import background from '../assets/background_banner.jpg';
-import { useAuth } from '../context/AuthContext';  // Corrected the hook name
+import { useAuth } from '../context/AuthContext';
+import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai'; // Import eye icons
 
 const Signin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { login } = useAuth();  // Corrected to useAuth hook
+  const [showPassword, setShowPassword] = useState(false); // State for password visibility
+  const { login } = useAuth();
   const navigate = useNavigate();
 
-  // Handle form submission
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(''); // Clear any previous errors
+    setError('');
     try {
-      await login(email, password);  // Attempt login
-      navigate('/');  // Redirect to home after successful login
+      await login(email, password);
+      navigate('/');
     } catch (err) {
-      setError('Invalid credentials. Please try again.');  // Show error message on failure
+      setError('Invalid credentials. Please try again.');
+      console.error('Signin error:', err);
+      // Optionally handle specific error responses from the backend
     }
   };
 
   return (
     <div className="w-full h-screen relative">
-      {/* Background image */}
       <img
         src={background}
         alt="background"
         className="hidden sm:block absolute w-full h-full object-cover z-0"
       />
-
-      {/* Overlay */}
       <div className="absolute w-full h-full bg-black/60 top-0 left-0 z-10"></div>
-
-      {/* Logo */}
       <div className="absolute top-4 left-4 z-50">
         <Link to="/">
           <h1 className="text-red-600 text-4xl font-bold cursor-pointer">
@@ -42,8 +44,6 @@ const Signin = () => {
           </h1>
         </Link>
       </div>
-
-      {/* Form */}
       <div className="fixed w-full px-4 py-24 z-20">
         <div className="max-w-[450px] h-[550px] mx-auto bg-black/75 text-white rounded-md">
           <div className="px-10 py-10">
@@ -57,14 +57,22 @@ const Signin = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
-              <input
-                type="password"
-                placeholder="Password"
-                className="p-3 rounded bg-gray-700 placeholder-gray-300"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Password"
+                  className="p-3 rounded bg-gray-700 placeholder-gray-300 w-full"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <span
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-400"
+                  onClick={togglePasswordVisibility}
+                >
+                  {showPassword ? <AiFillEyeInvisible size={20} /> : <AiFillEye size={20} />}
+                </span>
+              </div>
               <button
                 type="submit"
                 className="bg-red-600 py-3 rounded font-semibold hover:bg-red-700 transition duration-300"
@@ -72,7 +80,7 @@ const Signin = () => {
                 Sign In
               </button>
               {error && (
-                <p className="text-red-600 text-sm mt-2">{error}</p>  // Show error message if any
+                <p className="text-red-600 text-sm mt-2">{error}</p>
               )}
               <div className="flex items-center justify-between text-sm text-gray-400">
                 <label>
